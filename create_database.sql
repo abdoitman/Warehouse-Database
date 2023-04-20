@@ -1,9 +1,9 @@
--- CREATE DATABASE IF NOT EXISTS WAREHOUSE_DATA;
+CREATE DATABASE IF NOT EXISTS WAREHOUSE_DATA;
 use warehouse_data;
 
 CREATE TABLE IF NOT EXISTS Customers (
 CustomerID VARCHAR(10),
-Email VARCHAR(50),
+Email VARCHAR(50) UNIQUE,
 Password VARCHAR(20), -- does passwords have a length constraint in the front end?
 FullName VARCHAR(100),
 Gender ENUM('Male', 'Female'),
@@ -24,30 +24,30 @@ Image_3  VARCHAR(100),
 CONSTRAINT pk_Products PRIMARY KEY (ProductID)
 );
 
-CREATE TABLE IF NOT EXISTS Shelves (
+CREATE TABLE IF NOT EXISTS Shelves ( -- Erg3
 ShelfID VARCHAR(10),
-Location_X INT, -- constraints should be assigned according to the warehouse coordinates
-Location_Y INT,
+Location_X INT CHECK (Location_X BETWEEN 0 AND 20), 
+Location_Y INT CHECK (Location_Y BETWEEN 0 AND 20),
 ProductID VARCHAR(10),
 isHavingOrder BOOL,
 
 CONSTRAINT pk_Shelves PRIMARY KEY (ShelfID),
-CONSTRAINT fk_products_in_shelves FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
+CONSTRAINT fk_products_in_shelves FOREIGN KEY (ProductID) REFERENCES Products (ProductID),
+CONSTRAINT unique_location UNIQUE KEY (Location_X, Location_Y)
 );
 
 CREATE TABLE IF NOT EXISTS Robots (
 RobotID VARCHAR(10),
-Speed FLOAT CHECK (Speed >= 0),
-BatteryPercentage FLOAT CHECK (BatteryPercentage >= 0 AND BatteryPercentage <= 100),
-CurrentLocation_X INT CHECK (CurrentLocation_X >= 0 AND CurrentLocation_X <= 20), -- upper bound needs revision
-CurrentLocation_Y INT CHECK (CurrentLocation_Y >= 0 AND CurrentLocation_Y <= 20), -- same
-NextLocation_X INT CHECK (NextLocation_X >= 0 AND NextLocation_X <= 20), -- still same
-NextLocation_Y INT CHECK (NextLocation_Y >= 0 AND NextLocation_Y <= 20), -- wallah same
+Speed DECIMAL(3,2) CHECK (Speed >= 0),
+BatteryPercentage DECIMAL(3,2) CHECK (BatteryPercentage BETWEEN 0 AND 100),
+CurrentLocation_X INT CHECK (CurrentLocation_X BETWEEN 0 AND 20), -- upper bound needs revision
+CurrentLocation_Y INT CHECK (CurrentLocation_Y BETWEEN 0 AND 20), -- same
 isCharging BOOL,
-ShelfID VARCHAR(10),
+ShelfID VARCHAR(10) UNIQUE,
 
 CONSTRAINT pk_Robots PRIMARY KEY (RobotID),
-CONSTRAINT fk_shelves_in_robots FOREIGN KEY (ShelfID) REFERENCES Shelves (ShelfID)
+CONSTRAINT fk_shelves_in_robots FOREIGN KEY (ShelfID) REFERENCES Shelves (ShelfID),
+CONSTRAINT UCurrent_robot_location UNIQUE KEY (CurrentLocation_X, CurrentLocation_Y)
 );
 
 CREATE TABLE IF NOT EXISTS Orders (
@@ -55,11 +55,10 @@ OrderID VARCHAR(10),
 CustomerID VARCHAR(10),
 TotalCost FLOAT CHECK(TotalCost > 0),
 Orderdate TIMESTAMP,
-PhoneNumber CHAR(11),
+PhoneNumber VARCHAR(13),
 Address VARCHAR(150) NOT NULL,
-PaymentStatus ENUM('Paid', 'Not yet'),
-PaymentMethod ENUM('Cash', 'Online'),
-OrderStatus ENUM('1' , '2' , '3'),  -- add constraints
+PaymentMethod ENUM('Cash On-Delivery', 'Credit Card', 'Paypal'),
+OrderStatus ENUM('New', 'In Progress', 'Completed'),  -- add constraints
 
 CONSTRAINT pk_Orders PRIMARY KEY (OrderID),
 CONSTRAINT fk_customers_in_orders FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
@@ -78,16 +77,16 @@ CONSTRAINT fk_products_orders_details FOREIGN KEY (ProductID) REFERENCES Product
 CREATE TABLE IF NOT EXISTS Customer_Services (
 MessageID VARCHAR(10),
 CustomerID VARCHAR(10),
-PhoneNumber CHAR(11),
-Message MEDIUMTEXT NOT NULL,
+PhoneNumber CHAR(13),
+Message TEXT NOT NULL,
 
 CONSTRAINT pk_Customer_Services PRIMARY KEY (MessageID),
 CONSTRAINT fk_Customers_in_customer_services FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
 );
 
 CREATE TABLE IF NOT EXISTS Notification (
-NotificationID VARCHAR(10),
-Notification TEXT,
+NotificationID INT AUTO_INCREMENT,
+Notification TINYTEXT,
 NotificationDateTime TIMESTAMP,
 
 CONSTRAINT pk_Notification PRIMARY KEY (NotificationID)
