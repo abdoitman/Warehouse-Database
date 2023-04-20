@@ -1,2 +1,3 @@
 *.sql linguist-language= sql
-*.sql linguist-detectable= ture
+*.sql linguist-detectable= off
+*.sql data
