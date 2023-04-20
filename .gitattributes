@@ -1,3 +1,2 @@
 *.sql linguist-language= sql
-*.sql linguist-detectable= off
-*.sql warehouse-database
+*.sql linguist-detectable= ture
