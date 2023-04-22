@@ -1,10 +1,10 @@
 -- Create triggers for the database
+USE warehouse_data;
 
 DROP TRIGGER IF EXISTS orders_before_insert;
 DROP TRIGGER IF EXISTS orders_detalis_after_insert;
 DROP TRIGGER IF EXISTS notification_is_recieved;
-
-USE warehouse_data;
+DROP TRIGGER IF EXISTS Products_after_update;
 
 -- before an order is placed, make the orderdate = time of insertion 
 DELIMITER //
@@ -34,6 +34,23 @@ CREATE TRIGGER notification_is_recieved BEFORE INSERT ON Notifications
 FOR EACH ROW
 BEGIN
 	set NEW.NotificationDateTime = now();
+END//
+
+-- when an item gets low in stock (less than 10), send a notification in the notifications table
+CREATE TRIGGER Products_after_update AFTER UPDATE ON Products
+FOR EACH ROW
+BEGIN
+	IF NEW.ItemsInStock BETWEEN 1 AND 10
+    THEN
+		INSERT INTO Notifications(Notification) VALUES
+		( CONCAT('Product ' , NEW.ProductName , ' (' , NEW.ProductID , ') is low in stock. [' , NEW.ItemsInStock , ' items left.]') );
+	END IF;
+    
+	IF NEW.ItemsInStock = 0
+    THEN
+		INSERT INTO Notifications(Notification) VALUES
+		( CONCAT('Product ' , NEW.ProductName , ' (' , NEW.ProductID , ') ' , 'is out of stock.') );
+	END IF;
 END//
 
 DELIMITER ;
