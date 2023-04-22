@@ -84,7 +84,7 @@ CONSTRAINT pk_Customer_Services PRIMARY KEY (MessageID),
 CONSTRAINT fk_Customers_in_customer_services FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
 );
 
-CREATE TABLE IF NOT EXISTS Notification (
+CREATE TABLE IF NOT EXISTS Notifications (
 NotificationID INT AUTO_INCREMENT,
 Notification TINYTEXT,
 NotificationDateTime TIMESTAMP,
