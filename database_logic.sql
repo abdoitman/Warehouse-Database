@@ -5,14 +5,10 @@ DROP TRIGGER IF EXISTS orders_before_insert;
 DROP TRIGGER IF EXISTS orders_detalis_after_insert;
 DROP TRIGGER IF EXISTS notification_is_recieved;
 DROP TRIGGER IF EXISTS Products_after_update;
+DROP TRIGGER IF EXISTS orders_after_insert;
 
 -- before an order is placed, make the orderdate = time of insertion 
 DELIMITER //
-CREATE TRIGGER orders_before_insert BEFORE INSERT ON orders
-FOR EACH ROW
-BEGIN
-	SET NEW.OrderDate = now();
-END//
 
 -- after an order is placed:
 -- 1) set the corrosponding shelf isHavingOrder to True
@@ -27,13 +23,7 @@ BEGIN
 	UPDATE Products
 	SET Products.ItemsInStock = Products.ItemsInStock - NEW.Quantity
 	WHERE Products.ProductID = NEW.ProductID;
-END//
-
--- when  a notificaiton is recieved, make the notificationDateTime = time of insertion 
-CREATE TRIGGER notification_is_recieved BEFORE INSERT ON Notifications
-FOR EACH ROW
-BEGIN
-	set NEW.NotificationDateTime = now();
+    
 END//
 
 -- when an item gets low in stock (less than 10), send a notification in the notifications table
@@ -51,6 +41,17 @@ BEGIN
 		INSERT INTO Notifications(Notification) VALUES
 		( CONCAT('Product ' , NEW.ProductName , ' (' , NEW.ProductID , ') ' , 'is out of stock.') );
 	END IF;
+END//
+
+CREATE TRIGGER orders_after_insert AFTER INSERT ON orders
+FOR EACH ROW
+BEGIN
+    INSERT INTO Notifications(Notification) VALUES (
+    (SELECT concat(orderid , ' is placed with ' , group_concat(
+	concat(quantity, ' items from ', productid) SEPARATOR ' & '))
+    FROM orders_details
+	WHERE orderid = 'O3')
+    );
 END//
 
 DELIMITER ;
