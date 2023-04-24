@@ -52,26 +52,26 @@ CONSTRAINT UCurrent_robot_location UNIQUE KEY (CurrentLocation_X, CurrentLocatio
 
 CREATE TABLE IF NOT EXISTS Orders (
 OrderID VARCHAR(10),
+ProductID VARCHAR(10),
+Quantity INT CHECK (Quantity > 0),
+
+CONSTRAINT pk_Orders PRIMARY KEY (OrderID, ProductID),
+CONSTRAINT fk_products_orders_details FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
+);
+
+CREATE TABLE IF NOT EXISTS Orders_details (
+OrderID VARCHAR(10),
 CustomerID VARCHAR(10),
 TotalCost FLOAT CHECK(TotalCost > 0),
-Orderdate TIMESTAMP,
+Orderdate TIMESTAMP DEFAULT now(),
 PhoneNumber VARCHAR(13),
 Address VARCHAR(150) NOT NULL,
 PaymentMethod ENUM('Cash On-Delivery', 'Credit Card', 'Paypal'),
 OrderStatus ENUM('New', 'In Progress', 'Completed'),  -- add constraints
 
-CONSTRAINT pk_Orders PRIMARY KEY (OrderID),
-CONSTRAINT fk_customers_in_orders FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
-);
-
-CREATE TABLE IF NOT EXISTS Orders_Details (
-OrderID VARCHAR(10),
-ProductID VARCHAR(10),
-Quantity INT CHECK (Quantity > 0),
-
-CONSTRAINT pk_Order_Details PRIMARY KEY (OrderID, ProductID),
+CONSTRAINT pk_Orders_Details PRIMARY KEY (OrderID),
 CONSTRAINT fk_Orders_products_details FOREIGN KEY (OrderID) REFERENCES Orders (OrderID),
-CONSTRAINT fk_products_orders_details FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
+CONSTRAINT fk_customers_in_orders FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
 );
 
 CREATE TABLE IF NOT EXISTS Customer_Services (
@@ -87,7 +87,7 @@ CONSTRAINT fk_Customers_in_customer_services FOREIGN KEY (CustomerID) REFERENCES
 CREATE TABLE IF NOT EXISTS Notifications (
 NotificationID INT AUTO_INCREMENT,
 Notification TINYTEXT,
-NotificationDateTime TIMESTAMP,
+NotificationDateTime TIMESTAMP DEFAULT now(),
 
 CONSTRAINT pk_Notification PRIMARY KEY (NotificationID)
 );
