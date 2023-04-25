@@ -1,11 +1,9 @@
 -- Create triggers for the database
 USE warehouse_data;
 
-DROP TRIGGER IF EXISTS orders_before_insert;
-DROP TRIGGER IF EXISTS orders_detalis_after_insert;
-DROP TRIGGER IF EXISTS notification_is_recieved;
-DROP TRIGGER IF EXISTS Products_after_update;
 DROP TRIGGER IF EXISTS orders_after_insert;
+DROP TRIGGER IF EXISTS orders_details_after_insert;
+DROP TRIGGER IF EXISTS Products_after_update;
 
 -- before an order is placed, make the orderdate = time of insertion 
 DELIMITER //
@@ -13,7 +11,7 @@ DELIMITER //
 -- after an order is placed:
 -- 1) set the corrosponding shelf isHavingOrder to True
 -- 2) decrement ItemsInStock for each product in the order
-CREATE TRIGGER orders_detalis_after_insert AFTER INSERT ON orders_details
+CREATE TRIGGER orders_after_insert AFTER INSERT ON orders
 FOR EACH ROW
 BEGIN
     UPDATE Shelves
@@ -43,14 +41,17 @@ BEGIN
 	END IF;
 END//
 
-CREATE TRIGGER orders_after_insert AFTER INSERT ON orders
+CREATE TRIGGER orders_details_after_insert AFTER INSERT ON Orders_Details
 FOR EACH ROW
 BEGIN
     INSERT INTO Notifications(Notification) VALUES (
-    (SELECT concat(orderid , ' is placed with ' , group_concat(
-	concat(quantity, ' items from ', productid) SEPARATOR ' & '))
-    FROM orders_details
-	WHERE orderid = 'O3')
+    (SELECT concat(OrderID , ' is placed with ' , (
+    SELECT group_concat( concat(o.quantity, ' items from ', o.productid, ' in shelf ', s.shelfid) SEPARATOR ' & ')
+    FROM Orders o JOIN Shelves s ON o.productid = s.productid
+	WHERE OrderID = NEW.OrderID
+    ))
+    FROM Orders_Details
+	WHERE OrderID = NEW.OrderID)
     );
 END//
 
