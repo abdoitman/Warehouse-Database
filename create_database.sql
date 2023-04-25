@@ -29,7 +29,7 @@ ShelfID VARCHAR(10),
 Location_X INT CHECK (Location_X BETWEEN 0 AND 20), 
 Location_Y INT CHECK (Location_Y BETWEEN 0 AND 20),
 ProductID VARCHAR(10),
-isHavingOrder BOOL,
+NumberOfOrders INT CHECK (NumberOfOrders >= 0) DEFAULT 0,
 
 CONSTRAINT pk_Shelves PRIMARY KEY (ShelfID),
 CONSTRAINT fk_products_in_shelves FOREIGN KEY (ProductID) REFERENCES Products (ProductID),
