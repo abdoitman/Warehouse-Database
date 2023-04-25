@@ -74,6 +74,16 @@ CONSTRAINT fk_Orders_products_details FOREIGN KEY (OrderID) REFERENCES Orders (O
 CONSTRAINT fk_customers_in_orders FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
 );
 
+CREATE TABLE IF NOT EXISTS Wishlist (
+CustomerID VARCHAR(10),
+ProductID VARCHAR(10),
+WishDate TIMESTAMP DEFAULT now(),
+
+CONSTRAINT pk_Wishlist PRIMARY KEY (CustomerID, ProductID),
+CONSTRAINT fk_customers_in_wishlist FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID),
+CONSTRAINT fk_products_in_wishlist FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
+);
+
 CREATE TABLE IF NOT EXISTS Customer_Services (
 MessageID VARCHAR(10),
 CustomerID VARCHAR(10),
