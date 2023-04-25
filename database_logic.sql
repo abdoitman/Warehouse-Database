@@ -15,13 +15,12 @@ CREATE TRIGGER orders_after_insert AFTER INSERT ON orders
 FOR EACH ROW
 BEGIN
     UPDATE Shelves
-    SET Shelves.isHavingOrder = True
+    SET Shelves.NumberOfOrders = Shelves.NumberOfOrders + 1
     WHERE Shelves.ProductID = NEW.ProductID;
     
 	UPDATE Products
 	SET Products.ItemsInStock = Products.ItemsInStock - NEW.Quantity
 	WHERE Products.ProductID = NEW.ProductID;
-    
 END//
 
 -- when an item gets low in stock (less than 10), send a notification in the notifications table
@@ -53,6 +52,23 @@ BEGIN
     FROM Orders_Details
 	WHERE OrderID = NEW.OrderID)
     );
+END//
+
+CREATE TRIGGER orders_details_after_update AFTER UPDATE ON Orders_Details
+FOR EACH ROW
+BEGIN
+	IF NEW.OrderStatus = 'Completed' THEN
+		UPDATE Shelves
+		SET NumberOfOrders = NumberOfOrders - 1
+		WHERE ShelfID IN (
+		SELECT S.ShelfID
+		FROM Orders o
+		JOIN Orders_Details od
+		ON o.OrderID = od.OrderID
+		JOIN Shelves s
+		ON o.ProductID = s.ProductID
+		WHERE o.OrderID = NEW.OrderID);
+	END IF;
 END//
 
 DELIMITER ;
