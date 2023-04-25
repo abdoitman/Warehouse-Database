@@ -77,7 +77,6 @@ CONSTRAINT fk_customers_in_orders FOREIGN KEY (CustomerID) REFERENCES Customers 
 CREATE TABLE IF NOT EXISTS Wishlist (
 CustomerID VARCHAR(10),
 ProductID VARCHAR(10),
-WishDate TIMESTAMP DEFAULT now(),
 
 CONSTRAINT pk_Wishlist PRIMARY KEY (CustomerID, ProductID),
 CONSTRAINT fk_customers_in_wishlist FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID),
