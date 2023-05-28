@@ -8,7 +8,8 @@ The database stores information about the customers, including their names, addr
 
 ## Designing The Database
 After the normalization of data, the current database design is as follows:
-![Database ER](https://github.com/abdoitman/warehouse-database/assets/77892920/5a9a61f3-ce9f-465a-8848-cfe67e892b60)
+![Database ER](https://github.com/abdoitman/warehouse-database/assets/77892920/f7db1219-6a8e-4e64-ae7f-cc002df26815)
+
 
 <hr> 
 
