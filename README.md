@@ -41,7 +41,7 @@ END
 ```
 After inserting any order, the database should **automatically increament the number of orders** on the shelves containing any products from those shelves. Also, it will **subtract the quantity of the products in this order from the stock**.
 
-  __2) After updating Products tables
+  __2) After updating Products tables__
  
 ```sql
  CREATE TRIGGER Products_after_update AFTER UPDATE ON Products
@@ -62,7 +62,7 @@ END
 ```
  When an item gets *low in stock (less than 10)* or *out of stock*, send a **notification in the notifications table**.
  
-  __3) After inserting the order details
+  __3) After inserting the order details__
   
 ```sql
 CREATE TRIGGER orders_details_after_insert AFTER INSERT ON Orders_Details
@@ -81,7 +81,7 @@ END
 ```
 Atfer the user places any order, a **notification should be sent with the order details**.
 
-  __4) After completing any order
+  __4) After completing any order__
   
 ```sql
 CREATE TRIGGER orders_details_after_update AFTER UPDATE ON Orders_Details
@@ -101,6 +101,5 @@ BEGIN
 	END IF;
 END
 ```
-After completing any order, decrement the number of orders of each shelf that was increment in the placement of the order.
-
+After completing any order, decrement the number of orders of each shelf that was increment in the placement of the order. 
 This way if multiple orders containing products from the same shelf were placed, they will be all fulfiled.
