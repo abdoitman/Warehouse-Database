@@ -7,25 +7,24 @@ The database stores information about the customers, including their names, addr
 <hr> 
 
 ## Designing The Database
-After the normalization of data, the current database design is as follows:
-![Database ER](https://github.com/abdoitman/warehouse-database/assets/77892920/f7db1219-6a8e-4e64-ae7f-cc002df26815)
-
+After the normalization of data, the current database design is as follows: <br>
+<p align=center> <img src="https://github.com/abdoitman/warehouse-database/assets/77892920/f7db1219-6a8e-4e64-ae7f-cc002df26815"> </p>
 
 <hr> 
 
 ## Project files
 The project consists of 2 main SQL scripts, that were made using MySQL:
-  * [create_database.sql](https://github.com/abdoitman/warehouse-database/blob/main/create_database.sql)
-
-    This script is responsible for __the creation of the tables inside the database and the relations between the primary keys of each table.__ Also, the constraints and the limits of each atribute (column) in the tables.
-  * [database_logic.sql](https://github.com/abdoitman/warehouse-database/blob/main/database_logic.sql)
-
-    This script is responsible for __the creation of the triggers of each table.__
+  * [`create_database.sql`](https://github.com/abdoitman/warehouse-database/blob/main/create_database.sql) : This script is responsible for __the creation of the tables inside the database and the relations between the primary keys of each table.__ Also, the constraints and the limits of each attribute (column) in the tables.
+  * [`database_logic.sql`](https://github.com/abdoitman/warehouse-database/blob/main/database_logic.sql) : This script is responsible for __the creation of the triggers of each table.__
 
 ### Triggers
 The database contains __4 triggers__:
-
-  __1) After inserting any new order__
+  * [After inserting any new order](#after-inserting-any-new-order)
+  * [After updating Products table](#after-updating-products-table)
+  * [After inserting the order details](#after-inserting-the-order-details)
+  * [After completing any order](#after-completing-any-order)
+    
+#### __After inserting any new order__
   
 ```sql
   CREATE TRIGGER orders_after_insert AFTER INSERT ON orders
@@ -40,9 +39,9 @@ BEGIN
 	WHERE Products.ProductID = NEW.ProductID;
 END
 ```
-After inserting any order, the database should **automatically increament the number of orders** on the shelves containing any products from those shelves. Also, it will **subtract the quantity of the products in this order from the stock**.
+After inserting any order, the database should **automatically increment the number of orders** on the shelves containing any products from those shelves. Also, it will **subtract the quantity of the products in this order from the stock**.
 
-  __2) After updating Products tables__
+#### __After updating Products table__
  
 ```sql
  CREATE TRIGGER Products_after_update AFTER UPDATE ON Products
@@ -63,7 +62,7 @@ END
 ```
  When an item gets *low in stock (less than 10)* or *out of stock*, send a **notification in the notifications table**.
  
-  __3) After inserting the order details__
+#### __After inserting the order details__
   
 ```sql
 CREATE TRIGGER orders_details_after_insert AFTER INSERT ON Orders_Details
@@ -80,9 +79,9 @@ BEGIN
     );
 END
 ```
-Atfer the user places any order, a **notification should be sent with the order details**.
+After the user places any order, a **notification should be sent with the order details**.
 
-  __4) After completing any order__
+#### __After completing any order__
   
 ```sql
 CREATE TRIGGER orders_details_after_update AFTER UPDATE ON Orders_Details
@@ -103,4 +102,4 @@ BEGIN
 END
 ```
 After completing any order, decrement the number of orders of each shelf that was increment in the placement of the order. 
-This way if multiple orders containing products from the same shelf were placed, they will be all fulfiled.
+This way, if multiple orders containing products from the same shelf were placed, they will be all fulfilled.
